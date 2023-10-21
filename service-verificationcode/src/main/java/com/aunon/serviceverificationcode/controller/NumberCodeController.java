@@ -23,6 +23,8 @@ public class NumberCodeController {
         int random = (int)((Math.random()*9+1)*Math.pow(10,size-1));
         System.out.println(random);
 
+        System.out.println("generate src code"+random);
+
         NumberCodeResponse response = new NumberCodeResponse();
         response.setNumberCode(random);
 
