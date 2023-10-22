@@ -1,8 +1,10 @@
 package com.aunon.apipassenger.service;
 
+import com.aunon.apipassenger.remote.ServicePassengerUserClient;
 import com.aunon.apipassenger.remote.ServiceVerificationcodeClient;
 import com.aunon.internalcommon.constant.CommonStatusEnum;
 import com.aunon.internalcommon.dto.ResponseResult;
+import com.aunon.internalcommon.requsest.VerificationCodeDTO;
 import com.aunon.internalcommon.response.NumberCodeResponse;
 import com.aunon.internalcommon.response.TokenResponse;
 import io.netty.util.internal.StringUtil;
@@ -25,6 +27,9 @@ import java.util.concurrent.TimeUnit;
 public class VerificationCodeService {
     @Autowired
     private ServiceVerificationcodeClient serviceVerificationcodeClient;
+
+    @Autowired
+    private ServicePassengerUserClient servicePassengerUserClient;
 
     //乘客验证码前缀
     private String verificationCodePrefix = "passenger-verification-code-";
@@ -69,6 +74,7 @@ public class VerificationCodeService {
 
         System.out.println("redis中的验证码："+codeRedis);
 
+        //校验验证码
         if(StringUtils.isBlank(codeRedis)){
             return ResponseResult.fail(CommonStatusEnum.VERIFICATION_CODE_ERROR.getCode(),CommonStatusEnum.VERIFICATION_CODE_ERROR.getValue());
         }
@@ -76,6 +82,10 @@ public class VerificationCodeService {
             return ResponseResult.fail(CommonStatusEnum.VERIFICATION_CODE_ERROR.getCode(),CommonStatusEnum.VERIFICATION_CODE_ERROR.getValue());
         }
 
+        //判断原来是否有用户，并处理
+        VerificationCodeDTO verificationCodeDTO = new VerificationCodeDTO();
+        verificationCodeDTO.setPassengerPhone(passengerPhone);
+        servicePassengerUserClient.loginOrRegister(verificationCodeDTO);
 
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setToken("token value");
