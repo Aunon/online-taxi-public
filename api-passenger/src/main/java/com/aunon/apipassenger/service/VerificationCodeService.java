@@ -3,10 +3,12 @@ package com.aunon.apipassenger.service;
 import com.aunon.apipassenger.remote.ServicePassengerUserClient;
 import com.aunon.apipassenger.remote.ServiceVerificationcodeClient;
 import com.aunon.internalcommon.constant.CommonStatusEnum;
+import com.aunon.internalcommon.constant.IdentityConstant;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.requsest.VerificationCodeDTO;
 import com.aunon.internalcommon.response.NumberCodeResponse;
 import com.aunon.internalcommon.response.TokenResponse;
+import com.aunon.internalcommon.utils.JwtUtils;
 import io.netty.util.internal.StringUtil;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
@@ -87,8 +89,10 @@ public class VerificationCodeService {
         verificationCodeDTO.setPassengerPhone(passengerPhone);
         servicePassengerUserClient.loginOrRegister(verificationCodeDTO);
 
+        String token = JwtUtils.generatorToken(passengerPhone, IdentityConstant.PASSENGER_IDENTITY);
+
         TokenResponse tokenResponse = new TokenResponse();
-        tokenResponse.setToken("token value");
+        tokenResponse.setToken(token);
         return ResponseResult.success(tokenResponse);
     }
 
