@@ -1,10 +1,13 @@
 package com.aunon.apipassenger.service;
 
 import com.aunon.apipassenger.remote.ServiceVerificationcodeClient;
+import com.aunon.internalcommon.constant.CommonStatusEnum;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.response.NumberCodeResponse;
 import com.aunon.internalcommon.response.TokenResponse;
+import io.netty.util.internal.StringUtil;
 import net.sf.json.JSONObject;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -30,6 +33,15 @@ public class VerificationCodeService {
     private StringRedisTemplate stringRedisTemplate;
 
     /**
+     * 根据手机号,生成Key
+     * @param passengerPhone
+     * @return
+     */
+    public String generateKeyByPhone(String passengerPhone){
+        return verificationCodePrefix+passengerPhone;
+    }
+
+    /**
      * 生成验证码
      * @param passengerPhone
      * @return
@@ -39,7 +51,7 @@ public class VerificationCodeService {
         ResponseResult<NumberCodeResponse> numberCodeResponse = serviceVerificationcodeClient.getNumberCode(6);
         int numberCode = numberCodeResponse.getData().getNumberCode();
 
-        String key = verificationCodePrefix+passengerPhone;
+        String key = generateKeyByPhone(passengerPhone);
         //存入redis
         stringRedisTemplate.opsForValue().set(key,numberCode+"",2, TimeUnit.MINUTES);
 
@@ -51,6 +63,20 @@ public class VerificationCodeService {
      * 校验验证码
      */
     public ResponseResult checkCode(String passengerPhone,String verificationCode){
+        String key = generateKeyByPhone(passengerPhone);
+        //根据手机号获取redis中的验证码
+        String codeRedis = stringRedisTemplate.opsForValue().get(key);
+
+        System.out.println("redis中的验证码："+codeRedis);
+
+        if(StringUtils.isBlank(codeRedis)){
+            return ResponseResult.fail(CommonStatusEnum.VERIFICATION_CODE_ERROR.getCode(),CommonStatusEnum.VERIFICATION_CODE_ERROR.getValue());
+        }
+        if(!verificationCode.trim().equals(codeRedis.trim())){
+            return ResponseResult.fail(CommonStatusEnum.VERIFICATION_CODE_ERROR.getCode(),CommonStatusEnum.VERIFICATION_CODE_ERROR.getValue());
+        }
+
+
         TokenResponse tokenResponse = new TokenResponse();
         tokenResponse.setToken("token value");
         return ResponseResult.success(tokenResponse);
