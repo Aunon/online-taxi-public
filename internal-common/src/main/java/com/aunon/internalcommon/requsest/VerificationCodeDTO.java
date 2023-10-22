@@ -1,4 +1,4 @@
-package com.aunon.apipassenger.requsest;
+package com.aunon.internalcommon.requsest;
 
 import lombok.Data;
 

@@ -1,8 +1,8 @@
 package com.aunon.apipassenger.controller;
 
-import com.aunon.apipassenger.requsest.VerificationCodeDTO;
 import com.aunon.apipassenger.service.VerificationCodeService;
 import com.aunon.internalcommon.dto.ResponseResult;
+import com.aunon.internalcommon.requsest.VerificationCodeDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
