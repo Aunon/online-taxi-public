@@ -1,5 +1,6 @@
 package com.aunon.apipassenger.controller;
 
+import com.aunon.internalcommon.dto.ResponseResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,5 +16,15 @@ public class TestController {
     @GetMapping("/test")
     public String test(){
         return "test api passenger";
+    }
+
+    @GetMapping("/authTest")
+    public ResponseResult authTest(){
+        return ResponseResult.success("auth test");
+    }
+
+    @GetMapping("/noAuthTest")
+    public ResponseResult noAuthTest(){
+        return ResponseResult.success("noAuth test");
     }
 }
