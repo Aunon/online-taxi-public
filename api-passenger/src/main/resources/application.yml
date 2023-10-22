@@ -8,6 +8,14 @@ spring:
   application:
     name: api-passenger
   redis:
-    host: 127.0.0.1
+    host: 192.168.132.128
     port: 6379
     database: 0
+    password: 123456
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 1000
+        readTimeout: 500

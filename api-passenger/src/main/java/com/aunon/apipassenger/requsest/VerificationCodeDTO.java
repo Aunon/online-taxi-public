@@ -1,5 +1,7 @@
 package com.aunon.apipassenger.requsest;
 
+import lombok.Data;
+
 /**
  * Created with IntelliJ IDEA.
  *
@@ -7,14 +9,9 @@ package com.aunon.apipassenger.requsest;
  * @Date: 2023/10/21/16:07
  * @Description:
  */
+@Data
 public class VerificationCodeDTO {
     public String passengerPhone;
 
-    public String getPassengerPhone() {
-        return passengerPhone;
-    }
-
-    public void setPassengerPhone(String passengerPhone) {
-        this.passengerPhone = passengerPhone;
-    }
+    public String verificationCode;
 }

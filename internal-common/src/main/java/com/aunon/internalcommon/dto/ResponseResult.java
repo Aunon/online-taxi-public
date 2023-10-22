@@ -1,25 +1,23 @@
 package com.aunon.internalcommon.dto;
 
+
 import com.aunon.internalcommon.constant.CommonStatusEnum;
+import com.sun.javafx.logging.PulseLogger;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-/**
- * Created with IntelliJ IDEA.
- *
- * @Author: Aunon
- * @Date: 2023/10/21/19:43
- * @Description:
- */
+import java.awt.print.PrinterAbortException;
+
 @Data
 @Accessors(chain = true)
 public class ResponseResult<T> {
+
     private int code;
     private String message;
     private T data;
 
     /**
-     * 成功响应的默认方法
+     * 成功响应的方法
      * @param <T>
      * @return
      */
@@ -28,16 +26,13 @@ public class ResponseResult<T> {
     }
 
     /**
-     * 成功
+     * 成功响应的方法
      * @param data
      * @param <T>
      * @return
      */
     public static <T> ResponseResult success(T data){
-        return new ResponseResult()
-                .setCode(CommonStatusEnum.SUCCESS.getCode())
-                .setMessage(CommonStatusEnum.SUCCESS.getValue())
-                .setData(data);
+        return new ResponseResult().setCode(CommonStatusEnum.SUCCESS.getCode()).setMessage(CommonStatusEnum.SUCCESS.getValue()).setData(data);
     }
 
     /**
@@ -61,7 +56,7 @@ public class ResponseResult<T> {
     }
 
     /**
-     * 失败： 自定义失败 错误码、提示信息、具体错误
+     * 失败：自定义失败 错误码、提示信息、具体错误
      * @param code
      * @param message
      * @param data
@@ -70,4 +65,5 @@ public class ResponseResult<T> {
     public static ResponseResult fail(int code,String message,String data){
         return new ResponseResult().setCode(code).setMessage(message).setData(data);
     }
+
 }

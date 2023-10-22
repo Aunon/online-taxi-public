@@ -14,21 +14,40 @@ import org.springframework.web.bind.annotation.RestController;
  * @Date: 2023/10/21/18:54
  * @Description:
  */
+//@RestController
+//public class NumberCodeController {
+//    @GetMapping("/numberCode/{size}")
+//    public ResponseResult numberCode(@PathVariable("size") int size){
+//        System.out.println("size:"+size);
+//
+//        int random = (int)((Math.random()*9+1)*Math.pow(10,size-1));
+//        System.out.println(random);
+//
+//        System.out.println("generate src code"+random);
+//
+//        NumberCodeResponse response = new NumberCodeResponse();
+//        response.setNumberCode(random);
+//
+//        return ResponseResult.success(response);
+//    }
+//
+//}
 @RestController
 public class NumberCodeController {
+
     @GetMapping("/numberCode/{size}")
-    public ResponseResult numberCode(@PathVariable("size") int size){
-        System.out.println("size:"+size);
+    public ResponseResult numberCode(@PathVariable("size") int size ){
 
-        int random = (int)((Math.random()*9+1)*Math.pow(10,size-1));
-        System.out.println(random);
+        // 生成验证码
+        double mathRandom = (Math.random()*9 + 1) * (Math.pow(10,size-1));
+        System.out.println(mathRandom);
+        int resultInt = (int)mathRandom;
+        System.out.println("generator src code:"+resultInt);
 
-        System.out.println("generate src code"+random);
-
+        // 定义返回值
         NumberCodeResponse response = new NumberCodeResponse();
-        response.setNumberCode(random);
+        response.setNumberCode(resultInt);
 
         return ResponseResult.success(response);
     }
-
 }
