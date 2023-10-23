@@ -1,10 +1,13 @@
 package com.aunon.apipassenger.service;
 
+import com.aunon.apipassenger.remote.ServicePassengerUserClient;
 import com.aunon.internalcommon.dto.PassengerUser;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.dto.TokenResult;
+import com.aunon.internalcommon.requsest.VerificationCodeDTO;
 import com.aunon.internalcommon.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,16 +20,19 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class UserService {
+    @Autowired
+    private ServicePassengerUserClient servicePassengerUserClient;
 
     public ResponseResult getUserByAccessToken(String accessToken){
         log.info("accessToken : "+accessToken);
+        //解析accessToken拿到Phone
         TokenResult tokenResult = JwtUtils.checkToken(accessToken);
         String phone = tokenResult.getPhone();
-        log.info("phont : "+phone);
+        log.info("phone : "+phone);
 
-        PassengerUser passengerUser = new PassengerUser();
-        passengerUser.setPassengerName("张三");
-        passengerUser.setProfilePhoto("头像");
-        return ResponseResult.success(passengerUser);
+        //根据手机号查询用户信息
+        ResponseResult<PassengerUser> userByPhone = servicePassengerUserClient.getUserByPhone(phone);
+
+        return ResponseResult.success(userByPhone.getData());
     }
 }
