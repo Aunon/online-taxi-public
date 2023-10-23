@@ -1,12 +1,10 @@
 package com.aunon.servicepassengeruser.service;
 
+import com.aunon.internalcommon.dto.PassengerUser;
 import com.aunon.internalcommon.dto.ResponseResult;
-import com.aunon.internalcommon.requsest.VerificationCodeDTO;
-import com.aunon.servicepassengeruser.dto.PassengerUser;
 import com.aunon.servicepassengeruser.mapper.PassengerUserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;

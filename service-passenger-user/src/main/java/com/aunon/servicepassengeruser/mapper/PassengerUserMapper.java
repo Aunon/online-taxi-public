@@ -1,6 +1,6 @@
 package com.aunon.servicepassengeruser.mapper;
 
-import com.aunon.servicepassengeruser.dto.PassengerUser;
+import com.aunon.internalcommon.dto.PassengerUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 

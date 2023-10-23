@@ -1,4 +1,4 @@
-package com.aunon.servicepassengeruser.dto;
+package com.aunon.internalcommon.dto;
 
 import lombok.Data;
 
@@ -27,4 +27,6 @@ public class PassengerUser {
     private byte passengerGender;
 
     private byte state;
+
+    private String profilePhoto;
 }
