@@ -33,9 +33,9 @@ public class JwtUtils {
         map.put(JWT_KEY_Phone,passengerPhone);
         map.put(JWT_KEY_IDENTITY,identity);
         //token过期时间
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE,1);
-        Date date = calendar.getTime();
+        //Calendar calendar = Calendar.getInstance();
+        //calendar.add(Calendar.DATE,1);
+        //Date date = calendar.getTime();
 
         JWTCreator.Builder builder = JWT.create();
 
@@ -45,7 +45,7 @@ public class JwtUtils {
                 }
         );
 
-        builder.withExpiresAt(date);
+        //builder.withExpiresAt(date);
 
         String sign = builder.sign(Algorithm.HMAC256(SIGN));
 
