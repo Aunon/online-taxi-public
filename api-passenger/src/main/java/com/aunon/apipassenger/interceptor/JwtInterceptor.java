@@ -1,5 +1,6 @@
 package com.aunon.apipassenger.interceptor;
 
+import com.aunon.internalcommon.constant.TokenConstants;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.dto.TokenResult;
 import com.aunon.internalcommon.utils.JwtUtils;
@@ -61,7 +62,7 @@ public class JwtInterceptor implements HandlerInterceptor {
             // 拼接Key
             String phone = tokenResult.getPhone();
             String identity = tokenResult.getIdentity();
-            String tokenKey = RedisPrefixUtils.generatorTokenKey(phone,identity);
+            String tokenKey = RedisPrefixUtils.generatorTokenKey(phone,identity, TokenConstants.ACCESS_TOKEN_TYPE);
             String tokenRedis = stringRedisTemplate.opsForValue().get(tokenKey);
             if(StringUtils.isBlank(tokenRedis)){
                 resultString = "token invalid";

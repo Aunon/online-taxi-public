@@ -27,11 +27,14 @@ public class JwtUtils {
 
     private static final String JWT_KEY_IDENTITY="identity";
 
+    private static final String JWT_TOKEN_TYPE="tokenType";
+
     //生成token
-    public static String generatorToken(String passengerPhone,String identity){
+    public static String generatorToken(String passengerPhone,String identity,String tokenType){
         Map<String,String> map = new HashMap<>();
         map.put(JWT_KEY_Phone,passengerPhone);
         map.put(JWT_KEY_IDENTITY,identity);
+        map.put(JWT_TOKEN_TYPE,tokenType);
         //token过期时间
         //Calendar calendar = Calendar.getInstance();
         //calendar.add(Calendar.DATE,1);
@@ -62,7 +65,7 @@ public class JwtUtils {
     }
 
     public static void main(String[] args) {
-        String s = generatorToken("13242521037","1");
+        String s = generatorToken("13242521037","1","accessToken");
         System.out.println("token:"+s);
         System.out.println("解析后的token:-----------------");
         TokenResult tokenResult = parseToken(s);

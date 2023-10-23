@@ -7,7 +7,7 @@ package com.aunon.internalcommon.constant;
  * @Date: 2023/10/22/20:29
  * @Description:
  */
-public class IdentityConstant {
+public class IdentityConstants {
 
     public static final String PASSENGER_IDENTITY="1";
 
