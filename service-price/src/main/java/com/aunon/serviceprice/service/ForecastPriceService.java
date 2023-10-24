@@ -1,13 +1,20 @@
 package com.aunon.serviceprice.service;
 
+import com.aunon.internalcommon.constant.CommonStatusEnum;
 import com.aunon.internalcommon.dto.ForecastPriceDTO;
+import com.aunon.internalcommon.dto.PriceRule;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.response.DirectionResponse;
 import com.aunon.internalcommon.response.ForecastPriceResponse;
+import com.aunon.serviceprice.mapper.PriceRuleMapper;
 import com.aunon.serviceprice.remote.ServiceMapClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -19,6 +26,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class ForecastPriceService {
+    @Autowired
+    private PriceRuleMapper priceRuleMapper;
 
     @Autowired
     private ServiceMapClient serviceMapClient;
@@ -47,6 +56,14 @@ public class ForecastPriceService {
 
 
         //读取计价规则
+        Map<String,Object> queryMap = new HashMap<>();
+        queryMap.put("city_code","110000");
+        queryMap.put("vehicle_type","1");
+        List<PriceRule> priceRules = priceRuleMapper.selectByMap(queryMap);
+        if(priceRules.size()==0){
+            return ResponseResult.fail(CommonStatusEnum.PRICE_RULE_EMPTY.getCode(),CommonStatusEnum.PRICE_RULE_EMPTY.getValue());
+        }
+        PriceRule priceRule = priceRules.get(0);
 
         //根据距离、时长和计价规则计算价格
 
