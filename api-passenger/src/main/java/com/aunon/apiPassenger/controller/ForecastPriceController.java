@@ -1,0 +1,35 @@
+package com.aunon.apiPassenger.controller;
+
+import com.aunon.apiPassenger.service.ForecastPriceService;
+import com.aunon.internalCommon.dto.ForecastPriceDTO;
+import com.aunon.internalCommon.dto.ResponseResult;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ * Created with IntelliJ IDEA.
+ *
+ * @Author: Aunon
+ * @Date: 2023/10/24/10:28
+ * @Description:
+ */
+@RestController
+@Slf4j
+public class ForecastPriceController {
+    @Autowired
+    private ForecastPriceService forecastPriceService;
+
+    @PostMapping("/forecast-price")
+    public ResponseResult forecastPrice(@RequestBody ForecastPriceDTO forecastPriceDTO){
+        String depLongitude = forecastPriceDTO.getDepLongitude();
+        String depLatitude = forecastPriceDTO.getDepLatitude();
+        String destLongitude = forecastPriceDTO.getDestLongitude();
+        String destLatitude = forecastPriceDTO.getDestLatitude();
+
+
+        return forecastPriceService.forecastPrice(depLongitude,depLatitude,destLongitude,destLatitude);
+    }
+}
