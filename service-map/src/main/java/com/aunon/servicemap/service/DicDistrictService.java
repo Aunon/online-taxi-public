@@ -2,6 +2,8 @@ package com.aunon.servicemap.service;
 
 import com.aunon.internalcommon.constant.AmapConfigConstants;
 import com.aunon.internalcommon.dto.ResponseResult;
+import com.aunon.servicemap.remote.MapDicDistrictClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,20 +16,16 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class DicDistrictService {
-    @Value("${amap.key}")
-    private String amapKey;
+    @Autowired
+    private MapDicDistrictClient mapDicDistrictClient;
 
     public ResponseResult initDicDistrict(String keywords){
-        //<用户的key>
+        //请求地图
+        String dicDistrict = mapDicDistrictClient.dicDistrict(keywords);
+        System.out.println(dicDistrict);
+        //解析结果
 
-        StringBuilder url = new StringBuilder();
-        url.append(AmapConfigConstants.DISTRICT_URL);
-        url.append("?");
-        url.append("keywords="+keywords);
-        url.append("&");
-        url.append("subdistrict=3");
-        url.append("&");
-        url.append("key="+amapKey);
+        //插入数据库
 
         return ResponseResult.success();
     }
