@@ -1,6 +1,6 @@
 package com.aunon.servicedriveruser.mapper;
 
-import com.aunon.internalcommon.dto.Car;
+import com.aunon.internalcommon.dto.DriverCarBindingRelationship;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
@@ -10,9 +10,9 @@ import org.springframework.stereotype.Repository;
  * </p>
  *
  * @author Aunon
- * @since 2023-10-26
+ * @since 2023-10-27
  */
 @Repository
-public interface CarMapper extends BaseMapper<Car> {
+public interface DriverCarBindingRelationshipMapper extends BaseMapper<DriverCarBindingRelationship> {
 
 }
