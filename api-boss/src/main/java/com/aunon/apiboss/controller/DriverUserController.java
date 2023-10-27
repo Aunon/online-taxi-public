@@ -1,6 +1,8 @@
 package com.aunon.apiboss.controller;
 
+import com.aunon.apiboss.service.CarService;
 import com.aunon.apiboss.service.DriverUserService;
+import com.aunon.internalcommon.dto.Car;
 import com.aunon.internalcommon.dto.DriverUser;
 import com.aunon.internalcommon.dto.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,9 @@ public class DriverUserController {
     @Autowired
     private DriverUserService driverUserService;
 
+    @Autowired
+    private CarService carService;
+
     /**
      * 添加司机
      * @param driverUser
@@ -40,5 +45,10 @@ public class DriverUserController {
     @PutMapping("/driver-user")
     public ResponseResult updateDriverUser(@RequestBody DriverUser driverUser){
         return driverUserService.updateDriverUser(driverUser);
+    }
+
+    @PostMapping("/car")
+    public ResponseResult addCar(@RequestBody Car car){
+        return carService.addCar(car);
     }
 }
