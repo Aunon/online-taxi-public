@@ -47,7 +47,7 @@ public class DriverCarBindingRelationshipService {
 
         }
         DriverCarBindingRelationship relationship = driverCarBindingRelationships.get(0);
-        relationship.setBindingTime(now);
+        relationship.setUnBindingTime(now);
         relationship.setBindState(DriverCarConstants.DRIVER_CAR_UNBIND);
 
         driverCarBindingRelationshipMapper.updateById(relationship);
