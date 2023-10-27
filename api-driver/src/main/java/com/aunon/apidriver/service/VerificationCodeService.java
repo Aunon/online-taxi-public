@@ -4,12 +4,17 @@ import com.aunon.apidriver.remote.ServiceDriverUserClient;
 import com.aunon.apidriver.remote.ServiceVerificationcodeClient;
 import com.aunon.internalcommon.constant.CommonStatusEnum;
 import com.aunon.internalcommon.constant.DriverCarConstants;
+import com.aunon.internalcommon.constant.IdentityConstants;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.response.DriverUserExistsResponse;
 import com.aunon.internalcommon.response.NumberCodeResponse;
+import com.aunon.internalcommon.utils.RedisPrefixUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,6 +31,9 @@ public class VerificationCodeService {
 
     @Autowired
     private ServiceVerificationcodeClient serviceVerificationcodeClient;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
 
     public ResponseResult checkAndSendVerificationCode(String driverPhone){
         //查询 service-driver-user,该手机号的司机是否存在
@@ -46,6 +54,10 @@ public class VerificationCodeService {
         //调用第三方发送验证码
 
         //存入redis
+        String key = RedisPrefixUtils.generatorKeyByPhone(driverPhone, IdentityConstants.DRIVER_IDENTITY);
+        stringRedisTemplate.opsForValue().set(key,numberCode+"",2, TimeUnit.MINUTES);
+
+
         return ResponseResult.success("");
     }
 }
