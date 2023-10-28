@@ -13,8 +13,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TestController {
 
-    @GetMapping("/test")
+    /**
+     * 需要授权的接口
+     * @return
+     */
+    @GetMapping("/auth")
     public String test(){
-        return "test-api-driver";
+        return "auth";
+    }
+
+    /**
+     * 不需要授权的接口
+     * @return
+     */
+    @GetMapping("/noauth")
+    public String testNoAuth(){
+        return "no auth";
     }
 }

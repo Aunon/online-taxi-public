@@ -7,3 +7,13 @@ spring:
         server-addr: 127.0.0.1:8848
   application:
     name: service-verificationcode
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 1000
+        readTimeout: 500
+ribbon:
+  ConnectTimeout: 5000 # 连接超时时间(ms)
+  ReadTimeout: 5000 # 通信超时时间(ms)
