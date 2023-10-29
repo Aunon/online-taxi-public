@@ -5,6 +5,7 @@ import com.aunon.internalcommon.constant.DriverCarConstants;
 import com.aunon.internalcommon.dto.DriverCarBindingRelationship;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.servicedriveruser.mapper.DriverCarBindingRelationshipMapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,37 @@ public class DriverCarBindingRelationshipService {
     private DriverCarBindingRelationshipMapper driverCarBindingRelationshipMapper;
 
     public ResponseResult bind(DriverCarBindingRelationship driverCarBindingRelationship){
+        //判断，如果参数中的司机和车辆已经做过绑定，则不允许再次绑定
+        QueryWrapper<DriverCarBindingRelationship> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("driver_id",driverCarBindingRelationship.getDriverId());
+        queryWrapper.eq("car_id",driverCarBindingRelationship.getCarId());
+        queryWrapper.eq("bind_state",DriverCarConstants.DRIVER_CAR_BIND);
+
+        Integer integer  = driverCarBindingRelationshipMapper.selectCount(queryWrapper);
+        if((integer.intValue())>0){
+            return ResponseResult.fail(CommonStatusEnum.DRIVER_CAR_BIND_EXISTS.getCode(),CommonStatusEnum.DRIVER_CAR_BIND_EXISTS.getValue());
+        }
+
+        //司机已被绑定
+        queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("driver_id",driverCarBindingRelationship.getCarId());
+        queryWrapper.eq("bind_state",DriverCarConstants.DRIVER_CAR_BIND);
+        integer = driverCarBindingRelationshipMapper.selectCount(queryWrapper);
+        if (integer.intValue() > 0) {
+            return ResponseResult.fail(CommonStatusEnum.DRIVER_BIND_EXISTS.getCode(),CommonStatusEnum.DRIVER_BIND_EXISTS.getValue());
+
+        }
+
+        //车辆已被绑定
+        queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("car_id",driverCarBindingRelationship.getCarId());
+        queryWrapper.eq("bind_state",DriverCarConstants.DRIVER_CAR_BIND);
+        integer = driverCarBindingRelationshipMapper.selectCount(queryWrapper);
+        if (integer.intValue() > 0) {
+            return ResponseResult.fail(CommonStatusEnum.CAR_BIND_EXISTS.getCode(),CommonStatusEnum.CAR_BIND_EXISTS.getValue());
+
+        }
+
         LocalDateTime now =LocalDateTime.now();
         driverCarBindingRelationship.setBindingTime(now);
         driverCarBindingRelationship.setBindState(DriverCarConstants.DRIVER_CAR_BIND);

@@ -1,0 +1,19 @@
+终端创建
+{
+    "errcode": 10000,
+    "errmsg": "OK",
+    "data": {
+        "name": "飞滴出行service",
+        "sid": 1008703
+    }
+}
+终端创建
+{
+    "errcode": 10000,
+    "errmsg": "OK",
+    "data": {
+        "name": "车辆1",
+        "tid": 778718045,
+        "sid": 1008703
+    }
+}
