@@ -31,7 +31,7 @@ public class TerminalClient {
     @Autowired
     private RestTemplate restTemplate;
 
-    public ResponseResult add(String name){
+    public ResponseResult<TerminalResponse> add(String name){
         StringBuilder url = new StringBuilder();
         url.append(AmapConfigConstants.TERMINAL_ADD);
         url.append("?");

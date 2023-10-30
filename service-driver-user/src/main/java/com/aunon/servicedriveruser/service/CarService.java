@@ -2,9 +2,13 @@ package com.aunon.servicedriveruser.service;
 
 import com.aunon.internalcommon.dto.Car;
 import com.aunon.internalcommon.dto.ResponseResult;
+import com.aunon.internalcommon.response.TerminalResponse;
 import com.aunon.servicedriveruser.mapper.CarMapper;
+import com.aunon.servicedriveruser.remote.ServiceMapClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 /**
  * Created with IntelliJ IDEA.
@@ -15,11 +19,25 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class CarService {
+
     @Autowired
     private CarMapper carMapper;
 
+    @Autowired
+    private ServiceMapClient serviceMapClient;
+
     public ResponseResult addCar(Car car){
+        LocalDateTime now = LocalDateTime.now();
+        car.setGmtModified(now);
+        car.setGmtCreate(now);
+
+        // 获得此车辆 对应 的 tid
+        ResponseResult<TerminalResponse> responseResult = serviceMapClient.addTerminal(car.getVehicleNo());
+        String tid = responseResult.getData().getTid();
+        car.setTid(tid);
+
         carMapper.insert(car);
         return ResponseResult.success("");
     }
+
 }

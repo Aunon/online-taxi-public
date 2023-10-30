@@ -1,6 +1,7 @@
 package com.aunon.servicemap.service;
 
 import com.aunon.internalcommon.dto.ResponseResult;
+import com.aunon.internalcommon.response.TerminalResponse;
 import com.aunon.servicemap.remote.TerminalClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,7 +19,7 @@ public class TerminalService {
     @Autowired
     private TerminalClient terminalClient;
 
-    public ResponseResult add(String name){
+    public ResponseResult<TerminalResponse> add(String name){
         return terminalClient.add(name);
     }
 }
