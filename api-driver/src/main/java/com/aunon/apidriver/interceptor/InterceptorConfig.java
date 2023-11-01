@@ -22,7 +22,14 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(jwtInterceptor())
+                // 拦截的路径
                 .addPathPatterns("/**")
-                .excludePathPatterns("/noauth");
+                // 不拦截的路径
+                .excludePathPatterns("/noauth")
+                .excludePathPatterns("/verification-code")
+                .excludePathPatterns("/verification-code-check")
+                .excludePathPatterns("/order/grab")
+                .excludePathPatterns("/test")
+        ;
     }
 }
