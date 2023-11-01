@@ -1,9 +1,11 @@
 package com.aunon.apidriver.service;
 
 import com.aunon.apidriver.remote.ServiceDriverUserClient;
+import com.aunon.apidriver.remote.ServiceMapClient;
 import com.aunon.internalcommon.dto.Car;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.requsest.ApiDriverPointRequest;
+import com.aunon.internalcommon.requsest.PointRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,9 @@ public class PointService {
     @Autowired
     private ServiceDriverUserClient serviceDriverUserClient;
 
+    @Autowired
+    private ServiceMapClient serviceMapClient;
+
     public ResponseResult upload(ApiDriverPointRequest apiDriverPointRequest){
 
         //获取carId
@@ -30,7 +35,11 @@ public class PointService {
         String tid = car.getTid();
         String trid = car.getTrid();
         //调用地图去上传
+        PointRequest pointRequest = new PointRequest();
+        pointRequest.setTid(tid);
+        pointRequest.setTrid(trid);
+        pointRequest.setPoints(apiDriverPointRequest.getPoints());
 
-        return null;
+        return serviceMapClient.upload(pointRequest);
     }
 }
