@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
  */
 @Data
 public class OrderRequest {
+    private Long passengerId;
+
+    private Long passengerPhone;
 
     private String address;
 
@@ -38,4 +41,6 @@ public class OrderRequest {
     private Integer encrypt;
 
     private String fareType;
+
+    private Integer fareVersion;
 }

@@ -82,7 +82,7 @@ public class ForecastPriceService {
      * @param priceRule
      * @return
      */
-    private double getPrice(Integer distance,Integer duration,PriceRule priceRule){
+    private double getPrice(Integer distance, Integer duration, PriceRule priceRule){
         double price = 0;
         
         //起步价

@@ -5,12 +5,14 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.springframework.stereotype.Repository;
 
 /**
- * Created with IntelliJ IDEA.
+ * <p>
+ *  Mapper 接口
+ * </p>
  *
- * @Author: Aunon
- * @Date: 2023/10/24/18:46
- * @Description:
+ * @author Aunon
+ * @since 2023-11-06
  */
 @Repository
 public interface PriceRuleMapper extends BaseMapper<PriceRule> {
+
 }
