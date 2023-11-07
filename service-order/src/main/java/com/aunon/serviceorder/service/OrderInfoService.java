@@ -3,10 +3,12 @@ package com.aunon.serviceorder.service;
 import com.aunon.internalcommon.constant.CommonStatusEnum;
 import com.aunon.internalcommon.constant.OrderConstants;
 import com.aunon.internalcommon.dto.OrderInfo;
+import com.aunon.internalcommon.dto.PriceRule;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.requsest.OrderRequest;
 import com.aunon.internalcommon.utils.RedisPrefixUtils;
 import com.aunon.serviceorder.mapper.OrderInfoMapper;
+import com.aunon.serviceorder.remote.ServicePriceClient;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,9 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class OrderInfoService {
     @Autowired
+    ServicePriceClient servicePriceClient;
+
+    @Autowired
     OrderInfoMapper orderInfoMapper;
 
     @Autowired
@@ -45,16 +50,17 @@ public class OrderInfoService {
 
 
         // 判断下单的设备是否是黑名单设备
-        String deviceCode = orderRequest.getDeviceCode();
-        // 生成key
-        String deviceCodeKey = RedisPrefixUtils.blackDeviceCodePrefix + deviceCode;
-
-        if (ifBlackDevice(deviceCodeKey))
+        if (isBlackDevice(orderRequest))
             return ResponseResult.fail(CommonStatusEnum.DEVICE_IS_BLACK.getCode(), CommonStatusEnum.DEVICE_IS_BLACK.getValue());
 
         // 判断乘客 是否有进行中的订单
         if (isPassengerOrderGoingon(orderRequest.getPassengerId()) > 0){
             return ResponseResult.fail(CommonStatusEnum.ORDER_GOING_ON.getCode(),CommonStatusEnum.ORDER_GOING_ON.getValue());
+        }
+
+        // 判断：下单的城市和计价规则是否正常
+        if(!isPriceRuleExists(orderRequest)){
+            return ResponseResult.fail(CommonStatusEnum.CITY_SERVICE_NOT_SERVICE.getCode(),CommonStatusEnum.CITY_SERVICE_NOT_SERVICE.getValue());
         }
 
         BeanUtils.copyProperties(orderRequest,orderInfo);
@@ -69,17 +75,22 @@ public class OrderInfoService {
         return ResponseResult.success("");
     }
 
-    private boolean ifBlackDevice(String deviceCodeKey) {
+    private boolean isBlackDevice(OrderRequest orderRequest) {
+        String deviceCode = orderRequest.getDeviceCode();
+        // 生成key
+        String deviceCodeKey = RedisPrefixUtils.blackDeviceCodePrefix + deviceCode;
         Boolean aBoolean = stringRedisTemplate.hasKey(deviceCodeKey);
-        if(aBoolean){
+        if (aBoolean){
             String s = stringRedisTemplate.opsForValue().get(deviceCodeKey);
             int i = Integer.parseInt(s);
-            if(i>=2){
+            if (i >= 2){
+                // 当前设备超过下单次数
                 return true;
-            }else{
+            }else {
                 stringRedisTemplate.opsForValue().increment(deviceCodeKey);
             }
-        }else{
+
+        }else {
             stringRedisTemplate.opsForValue().setIfAbsent(deviceCodeKey,"1",1L, TimeUnit.HOURS);
         }
         return false;
@@ -108,6 +119,26 @@ public class OrderInfoService {
         Integer validOrderNumber = orderInfoMapper.selectCount(queryWrapper);
 
         return validOrderNumber;
+
+    }
+
+    /**
+     * 计价规则是否存在
+     * @param orderRequest
+     * @return
+     */
+    private boolean isPriceRuleExists(OrderRequest orderRequest){
+        String fareType = orderRequest.getFareType();
+        int index = fareType.indexOf("$");
+        String cityCode = fareType.substring(0, index);
+        String vehicleType = fareType.substring(index + 1);
+
+        PriceRule priceRule = new PriceRule();
+        priceRule.setCityCode(cityCode);
+        priceRule.setVehicleType(vehicleType);
+
+        ResponseResult<Boolean> booleanResponseResult = servicePriceClient.ifPriceExists(priceRule);
+        return booleanResponseResult.getData();
 
     }
 }
