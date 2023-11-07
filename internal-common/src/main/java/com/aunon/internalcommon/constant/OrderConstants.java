@@ -7,7 +7,7 @@ package com.aunon.internalcommon.constant;
  * @Date: 2023/11/06/19:43
  * @Description:
  */
-public class OrderConstant {
+public class OrderConstants {
     // 0：订单无效
     public static final int ORDER_INVALID = 0;
     // 1：订单开始

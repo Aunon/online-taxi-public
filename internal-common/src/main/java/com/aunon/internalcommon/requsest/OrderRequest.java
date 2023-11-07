@@ -43,4 +43,6 @@ public class OrderRequest {
     private String fareType;
 
     private Integer fareVersion;
+
+    private String deviceCode;
 }
