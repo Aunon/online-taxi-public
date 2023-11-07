@@ -14,7 +14,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * @Description:
  */
 @SpringBootApplication
-@MapperScan("com.aunon.serviceDriverUser.mapper")
+@MapperScan("com.aunon.servicedriveruser.mapper")
 @EnableDiscoveryClient
 @EnableFeignClients
 public class ServiceDriverUserApplication {

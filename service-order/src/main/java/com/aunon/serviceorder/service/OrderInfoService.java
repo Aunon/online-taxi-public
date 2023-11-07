@@ -8,8 +8,10 @@ import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.requsest.OrderRequest;
 import com.aunon.internalcommon.utils.RedisPrefixUtils;
 import com.aunon.serviceorder.mapper.OrderInfoMapper;
+import com.aunon.serviceorder.remote.ServiceDriverUserClient;
 import com.aunon.serviceorder.remote.ServicePriceClient;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -27,7 +29,11 @@ import java.util.concurrent.TimeUnit;
  * @Description:
  */
 @Service
+@Slf4j
 public class OrderInfoService {
+    @Autowired
+    ServiceDriverUserClient serviceDriverUserClient;
+
     @Autowired
     ServicePriceClient servicePriceClient;
 
@@ -45,6 +51,14 @@ public class OrderInfoService {
     }
 
     public ResponseResult add(OrderRequest orderRequest){
+
+        // 测试当前城市是否有可用的司机
+        ResponseResult<Boolean> availableDriver = serviceDriverUserClient.isAvailableDriver(orderRequest.getAddress());
+        log.info("测试城市是否有司机结果："+availableDriver.getData());
+        if (!availableDriver.getData()){
+            return ResponseResult.fail(CommonStatusEnum.CITY_DRIVER_EMPTY.getCode(),CommonStatusEnum.CITY_DRIVER_EMPTY.getValue());
+        }
+
         OrderInfo orderInfo = new OrderInfo();
 
 

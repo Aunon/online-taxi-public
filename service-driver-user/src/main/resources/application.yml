@@ -13,7 +13,6 @@ spring:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
-
 feign:
   client:
     config:
@@ -23,3 +22,7 @@ feign:
 ribbon:
   ConnectTimeout: 10000 # 连接超时时间(ms)
   ReadTimeout: 10000 # 通信超时时间(ms)
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml

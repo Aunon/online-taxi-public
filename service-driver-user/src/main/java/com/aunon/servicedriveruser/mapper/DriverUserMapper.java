@@ -2,6 +2,7 @@ package com.aunon.servicedriveruser.mapper;
 
 import com.aunon.internalcommon.dto.DriverUser;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import feign.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -13,4 +14,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface DriverUserMapper extends BaseMapper<DriverUser> {
+    public int selectDriverUserCountByCityCode(@Param("cityCode") String cityCode);
 }
