@@ -15,6 +15,7 @@ import com.aunon.serviceorder.remote.ServicePriceClient;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -191,9 +192,15 @@ public class OrderInfoService {
 
             log.info("在半径为"+radius+"的范围内，寻找车辆,结果："+ JSONArray.fromObject(listResponseResult.getData()).toString());
 
-            // 获得终端
+            // 获得终端  [{"carId":1578641048288702465,"tid":"584169988"}]
 
             // 解析终端
+            JSONArray result = JSONArray.fromObject(listResponseResult.getData());
+            for (int j=0;j<result.size();j++){
+                JSONObject jsonObject = result.getJSONObject(j);
+                String carIdString = jsonObject.getString("carId");
+                Long carId = Long.parseLong(carIdString);
+            }
 
             // 根据解析出来的终端，查询车辆信息
 
