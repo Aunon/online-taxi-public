@@ -223,14 +223,13 @@ public class OrderInfoService {
             // 获得终端  [{"carId":1578641048288702465,"tid":"584169988"}]
 
             // 解析终端
-            JSONArray result = JSONArray.fromObject(listResponseResult.getData());
-            for (int j=0;j<result.size();j++){
-                JSONObject jsonObject = result.getJSONObject(j);
-                String carIdString = jsonObject.getString("carId");
-                Long carId = Long.parseLong(carIdString);
+            List<TerminalResponse> data = listResponseResult.getData();
+            for (int j=0;j<data.size();j++){
+                TerminalResponse terminalResponse = data.get(j);
+                Long carId = terminalResponse.getCarId();
 
-                long longitude = jsonObject.getLong("longitude");
-                long latitude = jsonObject.getLong("latitude");
+                String longitude = terminalResponse.getLongitude();
+                String latitude = terminalResponse.getLatitude();
 
                 //查询是否有对应的可派单司机
                 ResponseResult<OrderDriverResponse> availableDriver = serviceDriverUserClient.getAvailableDriver(carId);
@@ -260,8 +259,8 @@ public class OrderInfoService {
                     orderInfo.setDriverPhone(driverPhone);
                     orderInfo.setCarId(carId);
                     // 从地图中来
-                    orderInfo.setReceiveOrderCarLongitude(longitude+"");
-                    orderInfo.setReceiveOrderCarLatitude(latitude+"");
+                    orderInfo.setReceiveOrderCarLongitude(longitude);
+                    orderInfo.setReceiveOrderCarLatitude(latitude);
 
                     orderInfo.setReceiveOrderTime(LocalDateTime.now());
                     orderInfo.setLicenseId(licenseId);
