@@ -4,6 +4,7 @@ import com.aunon.internalcommon.constant.DriverCarConstants;
 import com.aunon.internalcommon.dto.DriverUser;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.response.DriverUserExistsResponse;
+import com.aunon.internalcommon.response.OrderDriverResponse;
 import com.aunon.servicedriveruser.service.DriverUserService;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
@@ -66,5 +67,14 @@ public class UserController {
         }
 
         return ResponseResult.success(response);
+    }
+
+    /**
+     * 根据车辆id查询订单需要的司机信息
+     * @return
+     */
+    @GetMapping("/get-available-driver/{carId}")
+    public ResponseResult<OrderDriverResponse> getAvailableDriver(@PathVariable("carId") Long carId){
+        return driverUserService.getAvailableDriver(carId);
     }
 }
