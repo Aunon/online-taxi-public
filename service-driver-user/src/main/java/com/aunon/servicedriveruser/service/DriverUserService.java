@@ -102,11 +102,20 @@ public class DriverUserService {
             QueryWrapper<DriverUser> driverUserQueryWrapper = new QueryWrapper<>();
             driverUserQueryWrapper.eq("id",driverId);
             DriverUser driverUser = driverUserMapper.selectOne(driverUserQueryWrapper);
+            // 查询车辆信息
+            QueryWrapper<Car> carQueryWrapper = new QueryWrapper<>();
+            carQueryWrapper.eq("id",carId);
+            Car car = carMapper.selectOne(carQueryWrapper);
+
 
             OrderDriverResponse orderDriverResponse = new OrderDriverResponse();
             orderDriverResponse.setCarId(carId);
             orderDriverResponse.setDriverId(driverId);
             orderDriverResponse.setDriverPhone(driverUser.getDriverPhone());
+
+            orderDriverResponse.setLicenseId(driverUser.getLicenseId());
+            orderDriverResponse.setVehicleNo(car.getVehicleNo());
+            orderDriverResponse.setVehicleType(car.getVehicleType());
 
             return ResponseResult.success(orderDriverResponse);
         }
