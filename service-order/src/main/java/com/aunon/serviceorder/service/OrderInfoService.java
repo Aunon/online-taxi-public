@@ -6,6 +6,7 @@ import com.aunon.internalcommon.dto.OrderInfo;
 import com.aunon.internalcommon.dto.PriceRule;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.requsest.OrderRequest;
+import com.aunon.internalcommon.response.OrderDriverResponse;
 import com.aunon.internalcommon.response.TerminalResponse;
 import com.aunon.internalcommon.utils.RedisPrefixUtils;
 import com.aunon.serviceorder.mapper.OrderInfoMapper;
@@ -146,6 +147,31 @@ public class OrderInfoService {
     }
 
     /**
+     * 判断是否有 业务中的订单
+     * @param driverId
+     * @return
+     */
+    private int isDriverOrderGoingon(Long driverId){
+        // 判断有正在进行的订单不允许下单
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("driver_id",driverId);
+        queryWrapper.and(wrapper->wrapper
+                .eq("order_status",OrderConstants.DRIVER_RECEIVE_ORDER)
+                .or().eq("order_status",OrderConstants.DRIVER_TO_PICK_UP_PASSENGER)
+                .or().eq("order_status",OrderConstants.DRIVER_ARRIVED_DEPARTURE)
+                .or().eq("order_status",OrderConstants.PICK_UP_PASSENGER)
+
+        );
+
+
+        Integer validOrderNumber = orderInfoMapper.selectCount(queryWrapper);
+        log.info("司机Id："+driverId+",正在进行的订单的数量："+validOrderNumber);
+
+        return validOrderNumber;
+
+    }
+
+    /**
      * 计价规则是否存在
      * @param orderRequest
      * @return
@@ -186,6 +212,7 @@ public class OrderInfoService {
         radiusList.add(5000);
         // 搜索结果
         ResponseResult<List<TerminalResponse>> listResponseResult = null;
+        radius:
         for (int i=0;i<radiusList.size();i++){
             Integer radius = radiusList.get(i);
             listResponseResult = serviceMapClient.terminalAroundSearch(center,radius );
@@ -200,6 +227,21 @@ public class OrderInfoService {
                 JSONObject jsonObject = result.getJSONObject(j);
                 String carIdString = jsonObject.getString("carId");
                 Long carId = Long.parseLong(carIdString);
+
+                //查询是否有对应的可派单司机
+                ResponseResult<OrderDriverResponse> availableDriver = serviceDriverUserClient.getAvailableDriver(carId);
+                if(availableDriver.getCode()==CommonStatusEnum.AVAILABLE_DRIVER_EMPTY.getCode()){
+                    log.info("没有车辆id:"+carId+"，对应的司机");
+                    continue;
+                }else{
+                    log.info("车辆id:"+carId+"找到了正在出车的司机");
+                    OrderDriverResponse orderDriverResponse = availableDriver.getData();
+                    Long driverId = orderDriverResponse.getDriverId();
+                    if(isDriverOrderGoingon(driverId)>0){
+                        continue ;
+                    }
+                    break radius;
+                }
             }
 
             // 根据解析出来的终端，查询车辆信息
