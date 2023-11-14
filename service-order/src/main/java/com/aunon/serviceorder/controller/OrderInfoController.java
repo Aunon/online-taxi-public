@@ -23,21 +23,23 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/order")
 @Slf4j
 public class OrderInfoController {
+
     @Autowired
     OrderInfoService orderInfoService;
 
+    /**
+     * 创建订单
+     * @param orderRequest
+     * @return
+     */
     @PostMapping("/add")
     public ResponseResult add(@RequestBody OrderRequest orderRequest , HttpServletRequest httpServletRequest){
+        // 测试通过，通过header获取deviceCode
 //        String deviceCode = httpServletRequest.getHeader(HeaderParamConstants.DEVICE_CODE);
 //        orderRequest.setDeviceCode(deviceCode);
 
         log.info("service-order"+orderRequest.getAddress());
         return orderInfoService.add(orderRequest);
-    }
-
-    @GetMapping("/testMapper")
-    public String testMapper(){
-        return orderInfoService.testMapper();
     }
 
 

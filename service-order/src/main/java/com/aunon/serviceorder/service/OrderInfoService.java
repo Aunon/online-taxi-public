@@ -18,6 +18,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -39,52 +41,52 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Slf4j
 public class OrderInfoService {
-    @Autowired
-    ServiceDriverUserClient serviceDriverUserClient;
-
-    @Autowired
-    ServicePriceClient servicePriceClient;
 
     @Autowired
     OrderInfoMapper orderInfoMapper;
 
     @Autowired
+    ServicePriceClient servicePriceClient;
+
+    @Autowired
+    ServiceDriverUserClient serviceDriverUserClient;
+
+    @Autowired
     StringRedisTemplate stringRedisTemplate;
 
-    public String testMapper() {
-        OrderInfo o = new OrderInfo();
-        o.setAddress("110000");
-        orderInfoMapper.insert(o);
-        return "";
-    }
 
-    public ResponseResult add(OrderRequest orderRequest) {
+    public ResponseResult add(OrderRequest orderRequest){
 
         // 测试当前城市是否有可用的司机
         ResponseResult<Boolean> availableDriver = serviceDriverUserClient.isAvailableDriver(orderRequest.getAddress());
-        log.info("测试城市是否有司机结果：" + availableDriver.getData());
-        if (!availableDriver.getData()) {
-            return ResponseResult.fail(CommonStatusEnum.CITY_DRIVER_EMPTY.getCode(), CommonStatusEnum.CITY_DRIVER_EMPTY.getValue());
+        log.info("测试城市是否有司机结果："+availableDriver.getData());
+        if (!availableDriver.getData()){
+            return ResponseResult.fail(CommonStatusEnum.CITY_DRIVER_EMPTY.getCode(),CommonStatusEnum.CITY_DRIVER_EMPTY.getValue());
         }
 
-        OrderInfo orderInfo = new OrderInfo();
+        // 需要判断计价规则的版本是否为最新
 
 
-        // 判断下单的设备是否是黑名单设备
-        if (isBlackDevice(orderRequest))
+        // 需要判断 下单的设备是否是 黑名单设备
+        if (isBlackDevice(orderRequest)) {
             return ResponseResult.fail(CommonStatusEnum.DEVICE_IS_BLACK.getCode(), CommonStatusEnum.DEVICE_IS_BLACK.getValue());
-
-        // 判断乘客 是否有进行中的订单
-        if (isPassengerOrderGoingon(orderRequest.getPassengerId()) > 0) {
-            return ResponseResult.fail(CommonStatusEnum.ORDER_GOING_ON.getCode(), CommonStatusEnum.ORDER_GOING_ON.getValue());
         }
 
         // 判断：下单的城市和计价规则是否正常
-        if (!isPriceRuleExists(orderRequest)) {
-            return ResponseResult.fail(CommonStatusEnum.CITY_SERVICE_NOT_SERVICE.getCode(), CommonStatusEnum.CITY_SERVICE_NOT_SERVICE.getValue());
+        if(!isPriceRuleExists(orderRequest)){
+            return ResponseResult.fail(CommonStatusEnum.CITY_SERVICE_NOT_SERVICE.getCode(),CommonStatusEnum.CITY_SERVICE_NOT_SERVICE.getValue());
         }
 
-        BeanUtils.copyProperties(orderRequest, orderInfo);
+
+        // 判断乘客 是否有进行中的订单
+        if (isPassengerOrderGoingon(orderRequest.getPassengerId()) > 0){
+            return ResponseResult.fail(CommonStatusEnum.ORDER_GOING_ON.getCode(),CommonStatusEnum.ORDER_GOING_ON.getValue());
+        }
+
+        // 创建订单
+        OrderInfo orderInfo = new OrderInfo();
+
+        BeanUtils.copyProperties(orderRequest,orderInfo);
 
         orderInfo.setOrderStatus(OrderConstants.ORDER_START);
 
@@ -92,123 +94,29 @@ public class OrderInfoService {
         orderInfo.setGmtCreate(now);
         orderInfo.setGmtModified(now);
 
+        orderInfoMapper.insert(orderInfo);
         // 派单 dispatchRealTimeOrder
         dispatchRealTimeOrder(orderInfo);
-
-        orderInfoMapper.insert(orderInfo);
-        return ResponseResult.success("");
-    }
-
-    private boolean isBlackDevice(OrderRequest orderRequest) {
-        String deviceCode = orderRequest.getDeviceCode();
-        // 生成key
-        String deviceCodeKey = RedisPrefixUtils.blackDeviceCodePrefix + deviceCode;
-        Boolean aBoolean = stringRedisTemplate.hasKey(deviceCodeKey);
-        if (aBoolean) {
-            String s = stringRedisTemplate.opsForValue().get(deviceCodeKey);
-            int i = Integer.parseInt(s);
-            if (i >= 2) {
-                // 当前设备超过下单次数
-                return true;
-            } else {
-                stringRedisTemplate.opsForValue().increment(deviceCodeKey);
-            }
-
-        } else {
-            stringRedisTemplate.opsForValue().setIfAbsent(deviceCodeKey, "1", 1L, TimeUnit.HOURS);
-        }
-        return false;
-    }
-
-    /**
-     * 判断是否有 业务中的订单
-     *
-     * @param passengerId
-     * @return
-     */
-    private int isPassengerOrderGoingon(Long passengerId) {
-
-        // 判断有正在进行的订单不允许下单
-        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("passenger_id", passengerId);
-        queryWrapper.and(wrapper -> wrapper.eq("order_status", OrderConstants.ORDER_START)
-                .or().eq("order_status", OrderConstants.DRIVER_RECEIVE_ORDER)
-                .or().eq("order_status", OrderConstants.DRIVER_TO_PICK_UP_PASSENGER)
-                .or().eq("order_status", OrderConstants.DRIVER_ARRIVED_DEPARTURE)
-                .or().eq("order_status", OrderConstants.PICK_UP_PASSENGER)
-                .or().eq("order_status", OrderConstants.PASSENGER_GETOFF)
-                .or().eq("order_status", OrderConstants.TO_START_PAY)
-        );
-
-
-        Integer validOrderNumber = orderInfoMapper.selectCount(queryWrapper);
-
-        return validOrderNumber;
-
-    }
-
-    /**
-     * 判断是否有 业务中的订单
-     *
-     * @param driverId
-     * @return
-     */
-    private int isDriverOrderGoingon(Long driverId) {
-        // 判断有正在进行的订单不允许下单
-        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("driver_id", driverId);
-        queryWrapper.and(wrapper -> wrapper
-                .eq("order_status", OrderConstants.DRIVER_RECEIVE_ORDER)
-                .or().eq("order_status", OrderConstants.DRIVER_TO_PICK_UP_PASSENGER)
-                .or().eq("order_status", OrderConstants.DRIVER_ARRIVED_DEPARTURE)
-                .or().eq("order_status", OrderConstants.PICK_UP_PASSENGER)
-
-        );
-
-
-        Integer validOrderNumber = orderInfoMapper.selectCount(queryWrapper);
-        log.info("司机Id：" + driverId + ",正在进行的订单的数量：" + validOrderNumber);
-
-        return validOrderNumber;
-
-    }
-
-    /**
-     * 计价规则是否存在
-     *
-     * @param orderRequest
-     * @return
-     */
-    private boolean isPriceRuleExists(OrderRequest orderRequest) {
-        String fareType = orderRequest.getFareType();
-        int index = fareType.indexOf("$");
-        String cityCode = fareType.substring(0, index);
-        String vehicleType = fareType.substring(index + 1);
-
-        PriceRule priceRule = new PriceRule();
-        priceRule.setCityCode(cityCode);
-        priceRule.setVehicleType(vehicleType);
-
-        ResponseResult<Boolean> booleanResponseResult = servicePriceClient.ifPriceExists(priceRule);
-        return booleanResponseResult.getData();
-
+        return ResponseResult.success();
     }
 
     @Autowired
     ServiceMapClient serviceMapClient;
 
+    @Autowired
+    RedissonClient redissonClient;
+
     /**
      * 实时订单派单逻辑
-     *
      * @param orderInfo
      */
-    public synchronized void dispatchRealTimeOrder(OrderInfo orderInfo) {
+    public void dispatchRealTimeOrder(OrderInfo orderInfo){
 
         //2km
         String depLatitude = orderInfo.getDepLatitude();
         String depLongitude = orderInfo.getDepLongitude();
 
-        String center = depLatitude + "," + depLongitude;
+        String center = depLatitude+","+depLongitude;
 
         List<Integer> radiusList = new ArrayList<>();
         radiusList.add(2000);
@@ -218,17 +126,17 @@ public class OrderInfoService {
         ResponseResult<List<TerminalResponse>> listResponseResult = null;
         // goto是为了测试。
         radius:
-        for (int i = 0; i < radiusList.size(); i++) {
+        for (int i=0;i<radiusList.size();i++){
             Integer radius = radiusList.get(i);
-            listResponseResult = serviceMapClient.terminalAroundSearch(center, radius);
+            listResponseResult = serviceMapClient.terminalAroundSearch(center,radius );
 
-            log.info("在半径为" + radius + "的范围内，寻找车辆,结果：" + JSONArray.fromObject(listResponseResult.getData()).toString());
+            log.info("在半径为"+radius+"的范围内，寻找车辆,结果："+ JSONArray.fromObject(listResponseResult.getData()).toString());
 
             // 获得终端  [{"carId":1578641048288702465,"tid":"584169988"}]
 
             // 解析终端
             List<TerminalResponse> data = listResponseResult.getData();
-            for (int j = 0; j < data.size(); j++) {
+            for (int j=0;j<data.size();j++){
                 TerminalResponse terminalResponse = data.get(j);
                 Long carId = terminalResponse.getCarId();
 
@@ -237,27 +145,30 @@ public class OrderInfoService {
 
                 // 查询是否有对于的可派单司机
                 ResponseResult<OrderDriverResponse> availableDriver = serviceDriverUserClient.getAvailableDriver(carId);
-                if (availableDriver.getCode() == CommonStatusEnum.AVAILABLE_DRIVER_EMPTY.getCode()) {
-                    log.info("没有车辆ID：" + carId + ",对于的司机");
+                if(availableDriver.getCode() == CommonStatusEnum.AVAILABLE_DRIVER_EMPTY.getCode()){
+                    log.info("没有车辆ID："+carId+",对于的司机");
                     continue;
-                } else {
-                    log.info("车辆ID：" + carId + "找到了正在出车的司机");
+                }else {
+                    log.info("车辆ID："+carId+"找到了正在出车的司机");
                     OrderDriverResponse orderDriverResponse = availableDriver.getData();
                     Long driverId = orderDriverResponse.getDriverId();
                     String driverPhone = orderDriverResponse.getDriverPhone();
                     String licenseId = orderDriverResponse.getLicenseId();
                     String vehicleNo = orderDriverResponse.getVehicleNo();
 
-
+                    String lockKey = (driverId+"").intern();
+                    RLock lock = redissonClient.getLock(lockKey);
+                    lock.lock();
 
                     // 判断司机 是否有进行中的订单
-                    if (isDriverOrderGoingon(driverId) > 0) {
-                        continue;
+                    if (isDriverOrderGoingon(driverId) > 0){
+                        lock.unlock();
+                        continue ;
                     }
                     // 订单直接匹配司机
                     // 查询当前车辆信息
                     QueryWrapper<Car> carQueryWrapper = new QueryWrapper<>();
-                    carQueryWrapper.eq("id", carId);
+                    carQueryWrapper.eq("id",carId);
 
 
                     // 设置订单中和司机车辆相关的信息
@@ -275,6 +186,7 @@ public class OrderInfoService {
 
                     orderInfoMapper.updateById(orderInfo);
 
+                    lock.unlock();
 
                     // 退出，不在进行 司机的查找
                     break radius;
@@ -293,5 +205,89 @@ public class OrderInfoService {
 
     }
 
+    private boolean isPriceRuleExists(OrderRequest orderRequest){
+        String fareType = orderRequest.getFareType();
+        int index = fareType.indexOf("$");
+        String cityCode = fareType.substring(0, index);
+        String vehicleType = fareType.substring(index + 1);
 
+        PriceRule priceRule = new PriceRule();
+        priceRule.setCityCode(cityCode);
+        priceRule.setVehicleType(vehicleType);
+
+        ResponseResult<Boolean> booleanResponseResult = servicePriceClient.ifPriceExists(priceRule);
+        return booleanResponseResult.getData();
+
+    }
+
+    private boolean isBlackDevice(OrderRequest orderRequest) {
+        String deviceCode = orderRequest.getDeviceCode();
+        // 生成key
+        String deviceCodeKey = RedisPrefixUtils.blackDeviceCodePrefix + deviceCode;
+        Boolean aBoolean = stringRedisTemplate.hasKey(deviceCodeKey);
+        if (aBoolean){
+            String s = stringRedisTemplate.opsForValue().get(deviceCodeKey);
+            int i = Integer.parseInt(s);
+            if (i >= 2){
+                // 当前设备超过下单次数
+                return true;
+            }else {
+                stringRedisTemplate.opsForValue().increment(deviceCodeKey);
+            }
+
+        }else {
+            stringRedisTemplate.opsForValue().setIfAbsent(deviceCodeKey,"1",1L, TimeUnit.HOURS);
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否有 业务中的订单
+     * @param passengerId
+     * @return
+     */
+    private int isPassengerOrderGoingon(Long passengerId){
+        // 判断有正在进行的订单不允许下单
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("passenger_id",passengerId);
+        queryWrapper.and(wrapper->wrapper.eq("order_status",OrderConstants.ORDER_START)
+                .or().eq("order_status",OrderConstants.DRIVER_RECEIVE_ORDER)
+                .or().eq("order_status",OrderConstants.DRIVER_TO_PICK_UP_PASSENGER)
+                .or().eq("order_status",OrderConstants.DRIVER_ARRIVED_DEPARTURE)
+                .or().eq("order_status",OrderConstants.PICK_UP_PASSENGER)
+                .or().eq("order_status",OrderConstants.PASSENGER_GETOFF)
+                .or().eq("order_status",OrderConstants.TO_START_PAY)
+        );
+
+
+        Integer validOrderNumber = orderInfoMapper.selectCount(queryWrapper);
+
+        return validOrderNumber;
+
+    }
+
+    /**
+     * 判断是否有 业务中的订单
+     * @param driverId
+     * @return
+     */
+    private int isDriverOrderGoingon(Long driverId){
+        // 判断有正在进行的订单不允许下单
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("driver_id",driverId);
+        queryWrapper.and(wrapper->wrapper
+                .eq("order_status",OrderConstants.DRIVER_RECEIVE_ORDER)
+                .or().eq("order_status",OrderConstants.DRIVER_TO_PICK_UP_PASSENGER)
+                .or().eq("order_status",OrderConstants.DRIVER_ARRIVED_DEPARTURE)
+                .or().eq("order_status",OrderConstants.PICK_UP_PASSENGER)
+
+        );
+
+
+        Integer validOrderNumber = orderInfoMapper.selectCount(queryWrapper);
+        log.info("司机Id："+driverId+",正在进行的订单的数量："+validOrderNumber);
+
+        return validOrderNumber;
+
+    }
 }
