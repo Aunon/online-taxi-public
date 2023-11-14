@@ -20,6 +20,10 @@
         <module name="api-driver" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="service-push-sse" target="8" />
+      <module name="service-sse-push" target="8" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
