@@ -41,11 +41,31 @@ public class SseController {
     public String push(@RequestParam String driverId, @RequestParam String content){
 
         try {
-            sseEmitterMap.get(driverId).send(content);
+            if (sseEmitterMap.containsKey(driverId)){
+                sseEmitterMap.get(driverId).send(content);
+            }else {
+                return "推送失败";
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         return "给用户："+driverId+",发送了消息："+content;
+    }
+
+    /**
+     * 关闭连接
+     * @param driverId
+     * @return
+     */
+    @GetMapping("/close/{driverId}")
+    public String close(@PathVariable String driverId){
+        System.out.println("关闭连接："+driverId);
+        if (sseEmitterMap.containsKey(driverId)){
+            sseEmitterMap.remove(driverId);
+        }
+        return "close 成功";
+
     }
 }
