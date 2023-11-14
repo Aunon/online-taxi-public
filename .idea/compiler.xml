@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="internal-common" />
         <module name="api-boss" />
+        <module name="service-sse-push" />
         <module name="api-passenger" />
         <module name="service-driver-user" />
         <module name="service-price" />
@@ -22,7 +23,6 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="service-push-sse" target="8" />
-      <module name="service-sse-push" target="8" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
@@ -36,6 +36,7 @@
       <module name="service-order" options="-parameters" />
       <module name="service-passenger-user" options="-parameters" />
       <module name="service-price" options="-parameters" />
+      <module name="service-sse-push" options="-parameters" />
       <module name="service-verificationCode" options="-parameters" />
       <module name="sse-driver-client-web" options="-parameters" />
     </option>
