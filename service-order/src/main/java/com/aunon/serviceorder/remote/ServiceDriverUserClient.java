@@ -26,4 +26,5 @@ public interface ServiceDriverUserClient {
 
     @GetMapping("/car")
     public ResponseResult<Car> getCarById(@RequestParam  Long carId);
+
 }
