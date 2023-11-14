@@ -202,7 +202,7 @@ public class OrderInfoService {
      *
      * @param orderInfo
      */
-    public synchronized void dispatchRealTimeOrder(OrderInfo orderInfo) {
+    public void dispatchRealTimeOrder(OrderInfo orderInfo) {
 
         //2km
         String depLatitude = orderInfo.getDepLatitude();
