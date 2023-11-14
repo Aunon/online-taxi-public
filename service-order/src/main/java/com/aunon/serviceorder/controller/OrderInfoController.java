@@ -42,5 +42,16 @@ public class OrderInfoController {
         return orderInfoService.add(orderRequest);
     }
 
+    /**
+     * 去接乘客
+     * @param orderRequest
+     * @return
+     */
+    @PostMapping("/to-pick-up-passenger")
+    public ResponseResult changeStatus(@RequestBody OrderRequest orderRequest){
+
+        return orderInfoService.toPickUpPassenger(orderRequest);
+    }
+
 
 }
