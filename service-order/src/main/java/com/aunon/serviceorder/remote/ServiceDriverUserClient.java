@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient("service-driver-user")
 public interface ServiceDriverUserClient {
 
-    @GetMapping("/city-driver/is-alailable-driver")
+    @GetMapping("/city-driver/is-available-driver")
     public ResponseResult<Boolean> isAvailableDriver(@RequestParam String cityCode);
 
     @GetMapping("/get-available-driver/{carId}")

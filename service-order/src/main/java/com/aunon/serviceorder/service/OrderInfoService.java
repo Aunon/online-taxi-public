@@ -58,7 +58,7 @@ public class OrderInfoService {
     StringRedisTemplate stringRedisTemplate;
 
 
-    public ResponseResult add(OrderRequest orderRequest){
+    public ResponseResult add(OrderRequest orderRequest) {
 
         // 测试当前城市是否有可用的司机
         ResponseResult<Boolean> availableDriver = serviceDriverUserClient.isAvailableDriver(orderRequest.getAddress());
@@ -68,13 +68,13 @@ public class OrderInfoService {
         }
 
         // 需要判断计价规则的版本是否为最新
-        PriceRuleIsNewRequest priceRuleIsNewRequest = new PriceRuleIsNewRequest();
-        priceRuleIsNewRequest.setFareType(orderRequest.getFareType());
-        priceRuleIsNewRequest.setFareVersion(orderRequest.getFareVersion());
-        ResponseResult<Boolean> aNew = servicePriceClient.isNew(priceRuleIsNewRequest);
-        if (!(aNew.getData())){
-            return ResponseResult.fail(CommonStatusEnum.PRICE_RULE_CHANGED.getCode(),CommonStatusEnum.PRICE_RULE_CHANGED.getValue());
-        }
+//        PriceRuleIsNewRequest priceRuleIsNewRequest = new PriceRuleIsNewRequest();
+//        priceRuleIsNewRequest.setFareType(orderRequest.getFareType());
+//        priceRuleIsNewRequest.setFareVersion(orderRequest.getFareVersion());
+//        ResponseResult<Boolean> aNew = servicePriceClient.isNew(priceRuleIsNewRequest);
+//        if (!(aNew.getData())){
+//            return ResponseResult.fail(CommonStatusEnum.PRICE_RULE_CHANGED.getCode(),CommonStatusEnum.PRICE_RULE_CHANGED.getValue());
+//        }
 
         // 需要判断 下单的设备是否是 黑名单设备
         if (isBlackDevice(orderRequest)) {
@@ -104,8 +104,22 @@ public class OrderInfoService {
         orderInfo.setGmtModified(now);
 
         orderInfoMapper.insert(orderInfo);
-        // 派单 dispatchRealTimeOrder
-        dispatchRealTimeOrder(orderInfo);
+
+        // 定时任务的处理
+        for (int i =0;i<6;i++){
+            // 派单 dispatchRealTimeOrder
+            int result = dispatchRealTimeOrder(orderInfo);
+            if (result == 1){
+                break;
+            }
+            // 等待20s
+            try {
+                Thread.sleep(2);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
         return ResponseResult.success();
     }
 
@@ -120,9 +134,12 @@ public class OrderInfoService {
 
     /**
      * 实时订单派单逻辑
+     * 如果返回1：派单成功
      * @param orderInfo
      */
-    public void dispatchRealTimeOrder(OrderInfo orderInfo){
+    public int dispatchRealTimeOrder(OrderInfo orderInfo){
+        log.info("循环一次");
+        int result = 0;
 
         //2km
         String depLatitude = orderInfo.getDepLatitude();
@@ -148,6 +165,9 @@ public class OrderInfoService {
 
             // 解析终端
             List<TerminalResponse> data = listResponseResult.getData();
+
+            // 为了测试是否从地图上获取到司机
+            //List<TerminalResponse> data = new ArrayList<>();
             for (int j=0;j<data.size();j++){
                 TerminalResponse terminalResponse = data.get(j);
                 Long carId = terminalResponse.getCarId();
@@ -229,7 +249,7 @@ public class OrderInfoService {
                     passengerContent.put("receiveOrderCarLatitude",orderInfo.getReceiveOrderCarLatitude());
 
                     serviceSsePushClient.push(orderInfo.getPassengerId(), IdentityConstants.PASSENGER_IDENTITY,passengerContent.toString());
-
+                    result = 1;
                     lock.unlock();
 
                     // 退出，不在进行 司机的查找.如果派单成功，则退出循环
@@ -240,6 +260,7 @@ public class OrderInfoService {
 
         }
 
+        return  result;
 
     }
 
