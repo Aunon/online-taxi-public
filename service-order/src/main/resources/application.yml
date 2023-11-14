@@ -1,5 +1,4 @@
-server:
-  port: 8089
+
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -17,4 +16,15 @@ spring:
     port: 6379
     database: 0
     password: 123456
+
+---
+spring:
+  profiles: 8089
+server:
+  port: 8089
+---
+spring:
+  profiles: 8007
+server:
+  port: 8007
 

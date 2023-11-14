@@ -1,7 +1,10 @@
 package com.aunon.apipassenger.controller;
 
+import com.aunon.apipassenger.remote.ServiceOrderClient;
 import com.aunon.internalcommon.dto.ResponseResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -26,5 +29,20 @@ public class TestController {
     @GetMapping("/noAuthTest")
     public ResponseResult noAuthTest(){
         return ResponseResult.success("noAuth test");
+    }
+
+    @Autowired
+    ServiceOrderClient serviceOrderClient;
+
+    /**
+     * 测试派单逻辑
+     * @param orderId
+     * @return
+     */
+    @GetMapping("/test-real-time-order/{orderId}")
+    public String dispatchRealTimeOrder(@PathVariable("orderId") long orderId){
+        System.out.println("并发测试：api-passenger："+orderId);
+        serviceOrderClient.dispatchRealTimeOrder(orderId);
+        return "test-real-time-order   success";
     }
 }
