@@ -1,12 +1,14 @@
 package com.aunon.serviceorder.service;
 
 import com.aunon.internalcommon.constant.CommonStatusEnum;
+import com.aunon.internalcommon.constant.IdentityConstants;
 import com.aunon.internalcommon.constant.OrderConstants;
 import com.aunon.internalcommon.dto.Car;
 import com.aunon.internalcommon.dto.OrderInfo;
 import com.aunon.internalcommon.dto.PriceRule;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.requsest.OrderRequest;
+import com.aunon.internalcommon.requsest.PriceRuleIsNewRequest;
 import com.aunon.internalcommon.response.OrderDriverResponse;
 import com.aunon.internalcommon.response.TerminalResponse;
 import com.aunon.internalcommon.utils.RedisPrefixUtils;
@@ -14,6 +16,7 @@ import com.aunon.serviceorder.mapper.OrderInfoMapper;
 import com.aunon.serviceorder.remote.ServiceDriverUserClient;
 import com.aunon.serviceorder.remote.ServiceMapClient;
 import com.aunon.serviceorder.remote.ServicePriceClient;
+import com.aunon.serviceorder.remote.ServiceSsePushClient;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONArray;
@@ -65,7 +68,13 @@ public class OrderInfoService {
         }
 
         // 需要判断计价规则的版本是否为最新
-
+        PriceRuleIsNewRequest priceRuleIsNewRequest = new PriceRuleIsNewRequest();
+        priceRuleIsNewRequest.setFareType(orderRequest.getFareType());
+        priceRuleIsNewRequest.setFareVersion(orderRequest.getFareVersion());
+        ResponseResult<Boolean> aNew = servicePriceClient.isNew(priceRuleIsNewRequest);
+        if (!(aNew.getData())){
+            return ResponseResult.fail(CommonStatusEnum.PRICE_RULE_CHANGED.getCode(),CommonStatusEnum.PRICE_RULE_CHANGED.getValue());
+        }
 
         // 需要判断 下单的设备是否是 黑名单设备
         if (isBlackDevice(orderRequest)) {
@@ -105,6 +114,9 @@ public class OrderInfoService {
 
     @Autowired
     RedissonClient redissonClient;
+
+    @Autowired
+    ServiceSsePushClient serviceSsePushClient;
 
     /**
      * 实时订单派单逻辑
@@ -186,19 +198,27 @@ public class OrderInfoService {
 
                     orderInfoMapper.updateById(orderInfo);
 
+                    // 通知司机
+                    JSONObject driverContent = new  JSONObject();
+                    driverContent.put("passengerId",orderInfo.getPassengerId());
+                    driverContent.put("passengerPhone",orderInfo.getPassengerPhone());
+                    driverContent.put("departure",orderInfo.getDeparture());
+                    driverContent.put("depLongitude",orderInfo.getDepLongitude());
+                    driverContent.put("depLatitude",orderInfo.getDepLatitude());
+
+                    driverContent.put("destination",orderInfo.getDestination());
+                    driverContent.put("destLongitude",orderInfo.getDestLongitude());
+                    driverContent.put("destLatitude",orderInfo.getDestLatitude());
+
+                    serviceSsePushClient.push(driverId, IdentityConstants.DRIVER_IDENTITY,driverContent.toString());
+
                     lock.unlock();
 
-                    // 退出，不在进行 司机的查找
+                    // 退出，不在进行 司机的查找.如果派单成功，则退出循环
                     break radius;
                 }
 
             }
-
-            // 根据解析出来的终端，查询车辆信息
-
-            // 找到符合的车辆，进行派单
-
-            // 如果派单成功，则退出循环
 
         }
 
