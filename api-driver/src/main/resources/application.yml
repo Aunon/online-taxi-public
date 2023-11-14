@@ -9,10 +9,9 @@ spring:
   application:
     name: api-driver
   redis:
-    host: 192.168.132.128
+    host: 127.0.0.1
     port: 6379
     database: 0
-    password: 123456
 
 feign:
   client:
