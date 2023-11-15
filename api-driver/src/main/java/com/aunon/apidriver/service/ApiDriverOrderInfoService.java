@@ -37,4 +37,8 @@ public class ApiDriverOrderInfoService {
         return  serviceOrderClient.pickUpPassenger(orderRequest);
     }
 
+    public ResponseResult passengerGetoff(OrderRequest orderRequest){
+        return serviceOrderClient.passengerGetoff(orderRequest);
+    }
+
 }
