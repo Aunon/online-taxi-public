@@ -27,6 +27,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.time.LocalDateTime;
@@ -402,6 +403,27 @@ public class OrderInfoService {
         orderInfo.setOrderStatus(OrderConstants.DRIVER_ARRIVED_DEPARTURE);
 
         orderInfo.setDriverArrivedDepartureTime(LocalDateTime.now());
+        orderInfoMapper.updateById(orderInfo);
+        return ResponseResult.success();
+    }
+
+    /**
+     * 司机接到乘客
+     * @param orderRequest
+     * @return
+     */
+    public ResponseResult pickUpPassenger(@RequestBody OrderRequest orderRequest){
+        Long orderId = orderRequest.getOrderId();
+
+        QueryWrapper<OrderInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id",orderId);
+        OrderInfo orderInfo = orderInfoMapper.selectOne(queryWrapper);
+
+        orderInfo.setPickUpPassengerLongitude(orderRequest.getPickUpPassengerLongitude());
+        orderInfo.setPickUpPassengerLatitude(orderRequest.getPickUpPassengerLatitude());
+        orderInfo.setPickUpPassengerTime(LocalDateTime.now());
+        orderInfo.setOrderStatus(OrderConstants.PICK_UP_PASSENGER);
+
         orderInfoMapper.updateById(orderInfo);
         return ResponseResult.success();
     }
