@@ -73,8 +73,8 @@ public class MapDirectionClient {
                         if(pathObject.has(AmapConfigConstants.DISTANCE)){
                             directionResponse.setDistance(pathObject.getInt(AmapConfigConstants.DISTANCE));
                         }
-                        if(pathObject.has(AmapConfigConstants.Duration)){
-                            directionResponse.setDuration(pathObject.getInt(AmapConfigConstants.Duration));
+                        if(pathObject.has(AmapConfigConstants.DURATION)){
+                            directionResponse.setDuration(pathObject.getInt(AmapConfigConstants.DURATION));
                         }
 
                     }
