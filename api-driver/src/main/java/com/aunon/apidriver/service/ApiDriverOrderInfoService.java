@@ -20,8 +20,12 @@ public class ApiDriverOrderInfoService {
     @Autowired
     ServiceOrderClient serviceOrderClient;
 
-    public ResponseResult toPickUpPassenger(@RequestBody OrderRequest orderRequest){
+    public ResponseResult toPickUpPassenger(OrderRequest orderRequest){
         return serviceOrderClient.toPickUpPassenger(orderRequest);
+    }
+
+    public ResponseResult arrivedDeparture(OrderRequest orderRequest){
+        return serviceOrderClient.arrivedDeparture(orderRequest);
     }
 
 }
