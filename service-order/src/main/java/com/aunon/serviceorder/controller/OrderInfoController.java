@@ -53,5 +53,15 @@ public class OrderInfoController {
         return orderInfoService.toPickUpPassenger(orderRequest);
     }
 
+    /**
+     * 到达乘客上车点
+     * @param orderRequest
+     * @return
+     */
+    @PostMapping("/arrived-departure")
+    public ResponseResult arrivedDeparture(@RequestBody OrderRequest orderRequest){
+        return orderInfoService.arrivedDeparture(orderRequest);
+    }
+
 
 }
