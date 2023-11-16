@@ -96,5 +96,7 @@ public class OrderRequest {
      */
     private String passengerGetoffLatitude;
 
+    private String vehicleType;
+
 
 }
