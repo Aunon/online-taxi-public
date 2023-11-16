@@ -105,7 +105,7 @@ public class PriceService {
      * @param vehicleType
      * @return
      */
-    public ResponseResult calculatePrice( Integer distance ,  Integer duration, String cityCode, String vehicleType){
+    public ResponseResult<Double> calculatePrice( Integer distance ,  Integer duration, String cityCode, String vehicleType){
         // 查询计价规则
         QueryWrapper queryWrapper = new QueryWrapper();
         queryWrapper.eq("city_code",cityCode);
