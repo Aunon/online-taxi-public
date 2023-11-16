@@ -2,6 +2,7 @@ package com.aunon.apidriver.service;
 
 
 import com.aunon.apidriver.remote.ServiceOrderClient;
+import com.aunon.internalcommon.constant.IdentityConstants;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.requsest.OrderRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,10 @@ public class ApiDriverOrderInfoService {
 
     public ResponseResult passengerGetoff(OrderRequest orderRequest){
         return serviceOrderClient.passengerGetoff(orderRequest);
+    }
+
+    public ResponseResult cancel(Long orderId){
+        return  serviceOrderClient.cancel(orderId, IdentityConstants.DRIVER_IDENTITY);
     }
 
 }
