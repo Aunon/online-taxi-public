@@ -26,6 +26,7 @@
         <module>service-order</module>
         <module>sse-driver-client-web</module>
         <module>service-sse-push</module>
+        <module>test-alipay</module>
     </modules>
     <packaging>pom</packaging>
 

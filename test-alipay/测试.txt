@@ -1,0 +1,1 @@
+localhost:9001/alipay/pay?subject=车费1&outTradeNo=1002&totalAmount=100
