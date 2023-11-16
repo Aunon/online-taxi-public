@@ -30,9 +30,9 @@ public class JwtUtils {
     private static final String JWT_TOKEN_TIME="tokenTime";
 
     //生成token
-    public static String generatorToken(String passengerPhone,String identity,String tokenType){
+    public static String generatorToken(String phone,String identity,String tokenType){
         Map<String,String> map = new HashMap<>();
-        map.put(JWT_KEY_Phone,passengerPhone);
+        map.put(JWT_KEY_Phone,phone);
         map.put(JWT_KEY_IDENTITY,identity);
         map.put(JWT_TOKEN_TYPE,tokenType);
 

@@ -1,10 +1,12 @@
 package com.aunon.servicedriveruser.controller;
 
 import com.aunon.internalcommon.constant.DriverCarConstants;
+import com.aunon.internalcommon.dto.DriverCarBindingRelationship;
 import com.aunon.internalcommon.dto.DriverUser;
 import com.aunon.internalcommon.dto.ResponseResult;
 import com.aunon.internalcommon.response.DriverUserExistsResponse;
 import com.aunon.internalcommon.response.OrderDriverResponse;
+import com.aunon.servicedriveruser.service.DriverCarBindingRelationshipService;
 import com.aunon.servicedriveruser.service.DriverUserService;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.json.JSONObject;
@@ -23,6 +25,9 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired
     private DriverUserService driverUserService;
+
+    @Autowired
+    DriverCarBindingRelationshipService driverCarBindingRelationshipService;
 
     /**
      * 添加司机
@@ -76,5 +81,15 @@ public class UserController {
     @GetMapping("/get-available-driver/{carId}")
     public ResponseResult<OrderDriverResponse> getAvailableDriver(@PathVariable("carId") Long carId){
         return driverUserService.getAvailableDriver(carId);
+    }
+
+    /**
+     * 根据司机手机号查询司机和车辆绑定关系
+     * @param driverPhone
+     * @return
+     */
+    @GetMapping("/driver-car-binding-relationship")
+    public ResponseResult<DriverCarBindingRelationship> getDriverCarRelationShip(@RequestParam String driverPhone){
+        return driverCarBindingRelationshipService.getDriverCarRelationShipByDriverPhone(driverPhone);
     }
 }

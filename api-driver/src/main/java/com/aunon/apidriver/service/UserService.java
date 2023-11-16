@@ -1,6 +1,7 @@
 package com.aunon.apidriver.service;
 
 import com.aunon.apidriver.remote.ServiceDriverUserClient;
+import com.aunon.internalcommon.dto.DriverCarBindingRelationship;
 import com.aunon.internalcommon.dto.DriverUser;
 import com.aunon.internalcommon.dto.DriverUserWorkStatus;
 import com.aunon.internalcommon.dto.ResponseResult;
@@ -25,5 +26,11 @@ public class UserService {
 
     public ResponseResult changeWorkStatus(DriverUserWorkStatus driverUserWorkStatus){
         return serviceDriverUserClient.changeWorkStatus(driverUserWorkStatus);
+    }
+
+    public ResponseResult<DriverCarBindingRelationship> getDriverCarBindingRelationship(String driverPhone){
+        // 根据driverPhone查询司机信息
+        return serviceDriverUserClient.getDriverCarRelationShip(driverPhone);
+
     }
 }
