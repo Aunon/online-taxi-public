@@ -2,8 +2,10 @@ package com.aunon.apidriver.controller;
 
 import com.aunon.apidriver.service.UserService;
 import com.aunon.internalcommon.dto.DriverUser;
+import com.aunon.internalcommon.dto.DriverUserWorkStatus;
 import com.aunon.internalcommon.dto.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,5 +25,11 @@ public class UserController {
     @PutMapping("/user")
     public ResponseResult updateUser(@RequestBody DriverUser driverUser){
         return userService.updateUser(driverUser);
+    }
+
+    @PostMapping("/driver-user-work-status")
+    public ResponseResult changeWorkStatus(@RequestBody DriverUserWorkStatus driverUserWorkStatus){
+
+        return userService.changeWorkStatus(driverUserWorkStatus);
     }
 }
