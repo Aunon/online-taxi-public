@@ -116,11 +116,17 @@ public class OrderInfoService {
             if (result == 1){
                 break;
             }
-            // 等待20s
-            try {
-                Thread.sleep(2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            if (i == 5){
+                // 订单无效
+                orderInfo.setOrderStatus(OrderConstants.ORDER_INVALID);
+                orderInfoMapper.updateById(orderInfo);
+            }else {
+                // 等待20s
+                try {
+                    Thread.sleep(2);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
