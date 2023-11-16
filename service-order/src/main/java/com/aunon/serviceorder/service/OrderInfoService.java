@@ -238,6 +238,7 @@ public class OrderInfoService {
 
                     // 通知司机
                     JSONObject driverContent = new  JSONObject();
+                    driverContent.put("orderId",orderInfo.getId());
                     driverContent.put("passengerId",orderInfo.getPassengerId());
                     driverContent.put("passengerPhone",orderInfo.getPassengerPhone());
                     driverContent.put("departure",orderInfo.getDeparture());
@@ -248,10 +249,12 @@ public class OrderInfoService {
                     driverContent.put("destLongitude",orderInfo.getDestLongitude());
                     driverContent.put("destLatitude",orderInfo.getDestLatitude());
 
+
                     serviceSsePushClient.push(driverId, IdentityConstants.DRIVER_IDENTITY,driverContent.toString());
 
                     // 通知乘客
                     JSONObject passengerContent = new  JSONObject();
+                    driverContent.put("orderId",orderInfo.getId());
                     passengerContent.put("driverId",orderInfo.getDriverId());
                     passengerContent.put("driverPhone",orderInfo.getDriverPhone());
                     passengerContent.put("vehicleNo",orderInfo.getVehicleNo());

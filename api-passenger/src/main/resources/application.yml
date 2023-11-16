@@ -16,8 +16,8 @@ feign:
   client:
     config:
       default:
-        connectTimeout: 2000
-        readTimeout: 1000
+        connectTimeout: 4000
+        readTimeout: 4000
 ribbon:
-  ConnectTimeout: 10000 # 连接超时时间(ms)
-  ReadTimeout: 10000 # 通信超时时间(ms)
+  ConnectTimeout: 20000 # 连接超时时间(ms)
+  ReadTimeout: 20000 # 通信超时时间(ms)
