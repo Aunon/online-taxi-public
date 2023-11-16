@@ -1,6 +1,8 @@
 package com.aunon.apidriver.controller;
 
+import com.aunon.apidriver.service.PayService;
 import com.aunon.internalcommon.dto.ResponseResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -16,6 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/pay")
 public class PayController {
 
+    @Autowired
+    PayService payService;
+
     /**
      * 司机发起收款
      * @param orderId
@@ -25,6 +30,6 @@ public class PayController {
     @PostMapping("/push-pay-info")
     public ResponseResult pushPayInfo(@RequestParam String orderId , @RequestParam String price, @RequestParam Long passengerId){
 
-        return null;
+        return payService.pushPayInfo(orderId,price,passengerId);
     }
 }
