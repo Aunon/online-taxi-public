@@ -10,9 +10,9 @@
         <module name="api-boss" />
         <module name="api-passenger" />
         <module name="service-driver-user" />
-        <module name="test-alipay" />
         <module name="service-verificationCode" />
         <module name="service-order" />
+        <module name="service-pay" />
         <module name="api-driver" />
         <module name="internal-common" />
         <module name="service-sse-push" />
@@ -36,11 +36,11 @@
       <module name="service-map" options="-parameters" />
       <module name="service-order" options="-parameters" />
       <module name="service-passenger-user" options="-parameters" />
+      <module name="service-pay" options="-parameters" />
       <module name="service-price" options="-parameters" />
       <module name="service-sse-push" options="-parameters" />
       <module name="service-verificationCode" options="-parameters" />
       <module name="sse-driver-client-web" options="-parameters" />
-      <module name="test-alipay" options="-parameters" />
     </option>
   </component>
 </project>
