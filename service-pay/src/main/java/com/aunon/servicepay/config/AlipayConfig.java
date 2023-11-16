@@ -1,4 +1,4 @@
-package com.aunon.servicepay;
+package com.aunon.servicepay.config;
 
 import com.alipay.easysdk.factory.Factory;
 import com.alipay.easysdk.kernel.Config;
