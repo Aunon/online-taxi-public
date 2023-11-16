@@ -588,4 +588,15 @@ public class OrderInfoService {
         orderInfoMapper.updateById(orderInfo);
         return ResponseResult.success();
     }
+
+    public ResponseResult pushPayInfo(OrderRequest orderRequest) {
+
+        Long orderId = orderRequest.getOrderId();
+
+        OrderInfo orderInfo = orderInfoMapper.selectById(orderId);
+        orderInfo.setOrderStatus(OrderConstants.TO_START_PAY);
+        orderInfoMapper.updateById(orderInfo);
+        return ResponseResult.success();
+
+    }
 }

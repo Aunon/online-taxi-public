@@ -1,5 +1,6 @@
 package com.aunon.apidriver.controller;
 
+import com.aunon.apidriver.remote.ServiceOrderClient;
 import com.aunon.apidriver.service.PayService;
 import com.aunon.internalcommon.dto.ResponseResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ public class PayController {
     @Autowired
     PayService payService;
 
+
     /**
      * 司机发起收款
      * @param orderId
@@ -28,7 +30,7 @@ public class PayController {
      * @return
      */
     @PostMapping("/push-pay-info")
-    public ResponseResult pushPayInfo(@RequestParam String orderId , @RequestParam String price, @RequestParam Long passengerId){
+    public ResponseResult pushPayInfo(@RequestParam Long orderId , @RequestParam String price, @RequestParam Long passengerId){
 
         return payService.pushPayInfo(orderId,price,passengerId);
     }

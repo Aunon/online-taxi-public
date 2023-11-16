@@ -106,5 +106,15 @@ public class OrderInfoController {
         return orderInfoService.cancel(orderId,identity);
     }
 
+    /**
+     * 司机发起收款
+     * @param orderRequest
+     * @return
+     */
+    @PostMapping("/push-pay-info")
+    public ResponseResult pushPayInfo(@RequestBody OrderRequest orderRequest){
+        return orderInfoService.pushPayInfo(orderRequest);
+    }
+
 
 }
